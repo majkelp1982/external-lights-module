@@ -33,10 +33,10 @@ public class Esp32ModuleConfig {
 
   private ActorMap createActors() {
     final ActorMap actorMap = new ActorMap();
-    actorMap.putActor(new RbdDimmer(ENTRANCE_NAME, ENTRANCE_PIN, CARPORT_PIN));
-    actorMap.putActor(new RbdDimmer(DRIVEWAY_NAME, DRIVEWAY_PIN, CARPORT_PIN));
-    actorMap.putActor(new RbdDimmer(CARPORT_NAME, CARPORT_PIN, CARPORT_PIN));
-    actorMap.putActor(new RbdDimmer(GARDEN_NAME, GARDEN_PIN, CARPORT_PIN));
+    actorMap.putActor(new RbdDimmer(ENTRANCE_NAME, ENTRANCE_PIN, CROSSING_ZERO_PIN));
+    actorMap.putActor(new RbdDimmer(DRIVEWAY_NAME, DRIVEWAY_PIN, CROSSING_ZERO_PIN));
+    actorMap.putActor(new RbdDimmer(CARPORT_NAME, CARPORT_PIN, CROSSING_ZERO_PIN));
+    actorMap.putActor(new RbdDimmer(GARDEN_NAME, GARDEN_PIN, CROSSING_ZERO_PIN));
     return actorMap;
   }
 }

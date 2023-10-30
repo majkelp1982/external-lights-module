@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import pl.smarthouse.externallightsmodule.model.dao.ExternalLightsModuleDao;
 import pl.smarthouse.externallightsmodule.properties.Esp32ModuleProperties;
-import pl.smarthouse.smartmodule.model.actors.type.bme280.Bme280Response;
 import pl.smarthouse.smartmodule.model.actors.type.rdbDimmer.RdbDimmerResponse;
 import pl.smarthouse.smartmonitoring.model.BooleanCompareProperties;
+import pl.smarthouse.smartmonitoring.properties.defaults.RdbDimmerDefaultProperties;
 import pl.smarthouse.smartmonitoring.service.CompareProcessor;
 import pl.smarthouse.smartmonitoring.service.MonitoringService;
 
@@ -26,8 +26,6 @@ public class ExternalLightsModuleConfiguration {
 
   @PostConstruct
   void postConstruct() {
-    final Bme280Response sensor = new Bme280Response();
-    sensor.setError(true);
     final RdbDimmerResponse entrance = new RdbDimmerResponse();
     entrance.setMode("NO_READY");
     final RdbDimmerResponse driveway = new RdbDimmerResponse();
@@ -52,5 +50,9 @@ public class ExternalLightsModuleConfiguration {
     compareProcessor.addMap("error", BooleanCompareProperties.builder().saveEnabled(true).build());
     compareProcessor.addMap(
         "errorPendingAcknowledge", BooleanCompareProperties.builder().saveEnabled(true).build());
+    RdbDimmerDefaultProperties.setDefaultProperties(compareProcessor, "entrance");
+    RdbDimmerDefaultProperties.setDefaultProperties(compareProcessor, "driveway");
+    RdbDimmerDefaultProperties.setDefaultProperties(compareProcessor, "carport");
+    RdbDimmerDefaultProperties.setDefaultProperties(compareProcessor, "garden");
   }
 }
