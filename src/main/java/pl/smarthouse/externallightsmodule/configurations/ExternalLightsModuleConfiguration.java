@@ -36,6 +36,7 @@ public class ExternalLightsModuleConfiguration {
     garden.setMode("NO_READY");
     externalLightsModuleDao =
         ExternalLightsModuleDao.builder()
+            .moduleName(Esp32ModuleProperties.MODULE_TYPE)
             .entrance(entrance)
             .driveway(driveway)
             .carport(carport)
