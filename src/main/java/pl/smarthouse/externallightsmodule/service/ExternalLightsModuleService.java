@@ -7,15 +7,16 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import pl.smarthouse.externallightsmodule.configurations.ExternalLightsModuleConfiguration;
+import pl.smarthouse.sharedobjects.dto.externallights.ExternalLightsModuleDto;
 import pl.smarthouse.smartmodule.model.actors.type.rdbDimmer.RbdDimmer;
 import pl.smarthouse.smartmodule.model.actors.type.rdbDimmer.RdbDimmerCommandSet;
 import pl.smarthouse.smartmodule.model.actors.type.rdbDimmer.RdbDimmerCommandType;
 import pl.smarthouse.smartmodule.model.actors.type.rdbDimmer.RdbDimmerResponse;
-import reactor.core.publisher.Mono;
 
 @Service
 @RequiredArgsConstructor
@@ -23,33 +24,32 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class ExternalLightsModuleService {
   private final ExternalLightsModuleConfiguration externalLightsModuleConfiguration;
+  private final ModelMapper modelMapper = new ModelMapper();
 
-  public final Mono<RdbDimmerResponse> setEntranceDimmerResponse(
-      final RdbDimmerResponse rdbDimmerResponse) {
-    return Mono.just(externalLightsModuleConfiguration.getExternalLightsModuleDao())
-        .doOnNext(externalLightsModuleDao -> externalLightsModuleDao.setEntrance(rdbDimmerResponse))
-        .thenReturn(rdbDimmerResponse);
+  public ExternalLightsModuleDto getModule() {
+    return modelMapper.map(
+        externalLightsModuleConfiguration.getExternalLightsModuleDao(),
+        ExternalLightsModuleDto.class);
   }
 
-  public final Mono<RdbDimmerResponse> setDrivewayDimmerResponse(
-      final RdbDimmerResponse rdbDimmerResponse) {
-    return Mono.just(externalLightsModuleConfiguration.getExternalLightsModuleDao())
-        .doOnNext(externalLightsModuleDao -> externalLightsModuleDao.setDriveway(rdbDimmerResponse))
-        .thenReturn(rdbDimmerResponse);
+  public String getModuleName() {
+    return externalLightsModuleConfiguration.getExternalLightsModuleDao().getModuleName();
   }
 
-  public final Mono<RdbDimmerResponse> setCarportDimmerResponse(
-      final RdbDimmerResponse rdbDimmerResponse) {
-    return Mono.just(externalLightsModuleConfiguration.getExternalLightsModuleDao())
-        .doOnNext(externalLightsModuleDao -> externalLightsModuleDao.setCarport(rdbDimmerResponse))
-        .thenReturn(rdbDimmerResponse);
+  public void setEntranceDimmerResponse(final RdbDimmerResponse rdbDimmerResponse) {
+    externalLightsModuleConfiguration.getExternalLightsModuleDao().setEntrance(rdbDimmerResponse);
   }
 
-  public final Mono<RdbDimmerResponse> setGradenDimmerResponse(
-      final RdbDimmerResponse rdbDimmerResponse) {
-    return Mono.just(externalLightsModuleConfiguration.getExternalLightsModuleDao())
-        .doOnNext(externalLightsModuleDao -> externalLightsModuleDao.setGarden(rdbDimmerResponse))
-        .thenReturn(rdbDimmerResponse);
+  public void setDrivewayDimmerResponse(final RdbDimmerResponse rdbDimmerResponse) {
+    externalLightsModuleConfiguration.getExternalLightsModuleDao().setDriveway(rdbDimmerResponse);
+  }
+
+  public void setCarportDimmerResponse(final RdbDimmerResponse rdbDimmerResponse) {
+    externalLightsModuleConfiguration.getExternalLightsModuleDao().setCarport(rdbDimmerResponse);
+  }
+
+  public void setGardenDimmerResponse(final RdbDimmerResponse rdbDimmerResponse) {
+    externalLightsModuleConfiguration.getExternalLightsModuleDao().setGarden(rdbDimmerResponse);
   }
 
   @Scheduled(fixedDelay = 10000)
