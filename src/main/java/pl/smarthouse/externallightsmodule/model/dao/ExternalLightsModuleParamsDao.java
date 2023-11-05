@@ -8,9 +8,9 @@ import pl.smarthouse.sharedobjects.dto.core.TimeRange;
 @NoArgsConstructor
 public class ExternalLightsModuleParamsDao {
   TimeRange enableTimeRange;
-  private LightZoneDao entrance;
-  private LightZoneDao driveway;
-  private LightZoneDao carport;
-  private LightZoneDao garden;
+  private LightZoneParamDao entrance;
+  private LightZoneParamDao driveway;
+  private LightZoneParamDao carport;
+  private LightZoneParamDao garden;
   private int lightIntenseThreshold;
 }

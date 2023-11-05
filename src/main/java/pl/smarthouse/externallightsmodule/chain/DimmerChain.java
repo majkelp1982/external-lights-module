@@ -8,12 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pl.smarthouse.externallightsmodule.configurations.Esp32ModuleConfig;
+import pl.smarthouse.externallightsmodule.model.dao.LightZoneDao;
 import pl.smarthouse.externallightsmodule.service.ExternalLightsModuleParamsService;
 import pl.smarthouse.externallightsmodule.service.ExternalLightsModuleService;
 import pl.smarthouse.externallightsmodule.service.WeatherModuleService;
 import pl.smarthouse.externallightsmodule.utils.TimeRangeUtils;
 import pl.smarthouse.sharedobjects.dto.externallights.ExternalLightsModuleParamsDto;
-import pl.smarthouse.sharedobjects.dto.externallights.core.LightZoneDto;
+import pl.smarthouse.sharedobjects.dto.externallights.core.LightZoneParamDto;
 import pl.smarthouse.smartchain.model.core.Chain;
 import pl.smarthouse.smartchain.model.core.Step;
 import pl.smarthouse.smartchain.service.ChainService;
@@ -103,10 +104,22 @@ public class DimmerChain {
 
   private Runnable calculatePowerAndSend() {
     return () -> {
-      calculatePowerAndSendIfNeeded(entranceDimmer, serviceParams.getDriveway());
-      calculatePowerAndSendIfNeeded(drivewayDimmer, serviceParams.getDriveway());
-      calculatePowerAndSendIfNeeded(carportDimmer, serviceParams.getCarport());
-      calculatePowerAndSendIfNeeded(gardenDimmer, serviceParams.getGarden());
+      calculatePowerAndSendIfNeeded(
+          entranceDimmer,
+          externalLightsModuleService.getEntranceLightZone(),
+          serviceParams.getDriveway());
+      calculatePowerAndSendIfNeeded(
+          drivewayDimmer,
+          externalLightsModuleService.getDrivewayLightZone(),
+          serviceParams.getDriveway());
+      calculatePowerAndSendIfNeeded(
+          carportDimmer,
+          externalLightsModuleService.getCarportLightZone(),
+          serviceParams.getCarport());
+      calculatePowerAndSendIfNeeded(
+          gardenDimmer,
+          externalLightsModuleService.getGardenLightZone(),
+          serviceParams.getGarden());
     };
   }
 
@@ -147,7 +160,9 @@ public class DimmerChain {
   }
 
   private void calculatePowerAndSendIfNeeded(
-      final RbdDimmer rbdDimmer, final LightZoneDto lightZoneDto) {
+      final RbdDimmer rbdDimmer,
+      final LightZoneDao lightZoneDao,
+      final LightZoneParamDto lightZoneParamDto) {
     final RdbDimmerResponse dimmerResponse = rbdDimmer.getResponse();
     if (dimmerResponse == null) {
       rbdDimmer.getCommandSet().setCommandType(RdbDimmerCommandType.READ);
@@ -155,12 +170,12 @@ public class DimmerChain {
     }
     final int currentPower = dimmerResponse.getPower();
     int goalPower = 0;
-    if (lightZoneDto.isForceMin()) {
+    if (lightZoneDao.isForceMin()) {
       goalPower = 0;
-    } else if (lightZoneDto.isForceMax()) {
-      goalPower = lightZoneDto.getMaxPower();
+    } else if (lightZoneDao.isForceMax()) {
+      goalPower = lightZoneParamDto.getMaxPower();
     } else {
-      goalPower = calculateBaseOnLightIntense(lightZoneDto.getStandByPower());
+      goalPower = calculateBaseOnLightIntense(lightZoneParamDto.getStandByPower());
     }
 
     if (currentPower == goalPower) {
