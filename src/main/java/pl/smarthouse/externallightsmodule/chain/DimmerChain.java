@@ -62,7 +62,7 @@ public class DimmerChain {
     // Get service params
     chain.addStep(getServiceParams());
     // Wait 10 seconds and send calculated power if differ from goal power to all dimmers
-    chain.addStep(wait10secondsAndSendCalculatedPowerToDimmers());
+    chain.addStep(waitForParamsAndSendCalculatedPowerToDimmers());
     // Wait until command successful and set command to NO_ACTION for all dimmer
     chain.addStep(waitForResponseAndSetNoAction());
     return chain;
@@ -80,7 +80,11 @@ public class DimmerChain {
 
   private Runnable getServiceParamsExecution() {
     return () -> {
-      serviceParams = externalLightsModuleParamsService.getParams().block();
+      externalLightsModuleParamsService
+          .getParams()
+          .doOnNext(externalLightsModuleParamsDto -> serviceParams = externalLightsModuleParamsDto)
+          .subscribe();
+
       if (weatherModuleService.getWeatherMetadata() != null) {
         currentLightIntense =
             weatherModuleService.getWeatherMetadata().getLightIntense().getPinValue();
@@ -89,7 +93,7 @@ public class DimmerChain {
     };
   }
 
-  private Step wait10secondsAndSendCalculatedPowerToDimmers() {
+  private Step waitForParamsAndSendCalculatedPowerToDimmers() {
 
     return Step.builder()
         .stepDescription("Calculate power and send if goal power different")
@@ -104,6 +108,9 @@ public class DimmerChain {
 
   private Runnable calculatePowerAndSend() {
     return () -> {
+      if (serviceParams == null) {
+        return;
+      }
       calculatePowerAndSendIfNeeded(
           entranceDimmer,
           externalLightsModuleService.getEntranceLightZone(),
@@ -205,9 +212,17 @@ public class DimmerChain {
   }
 
   private void saveResponses() {
-    externalLightsModuleService.setEntranceDimmerResponse(entranceDimmer.getResponse());
-    externalLightsModuleService.setDrivewayDimmerResponse(drivewayDimmer.getResponse());
-    externalLightsModuleService.setCarportDimmerResponse(carportDimmer.getResponse());
-    externalLightsModuleService.setGardenDimmerResponse(gardenDimmer.getResponse());
+    if (entranceDimmer.getResponse() != null) {
+      externalLightsModuleService.setEntranceDimmerResponse(entranceDimmer.getResponse());
+    }
+    if (drivewayDimmer.getResponse() != null) {
+      externalLightsModuleService.setDrivewayDimmerResponse(drivewayDimmer.getResponse());
+    }
+    if (carportDimmer.getResponse() != null) {
+      externalLightsModuleService.setCarportDimmerResponse(carportDimmer.getResponse());
+    }
+    if (gardenDimmer.getResponse() != null) {
+      externalLightsModuleService.setGardenDimmerResponse(gardenDimmer.getResponse());
+    }
   }
 }
