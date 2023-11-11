@@ -2,6 +2,7 @@ package pl.smarthouse.externallightsmodule.chain;
 
 import static pl.smarthouse.externallightsmodule.properties.ActorProperties.*;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.function.Predicate;
 import lombok.extern.slf4j.Slf4j;
@@ -135,10 +136,12 @@ public class DimmerChain {
         .stepDescription("Set all dimmers command to NO_ACTION")
         .conditionDescription("Wait until send command successful")
         .condition(
-            isPowerSet(entranceDimmer)
+            isPowerSetAndResponseNotOlderThen30Sec(entranceDimmer)
                 .and(
-                    isPowerSet(drivewayDimmer)
-                        .and(isPowerSet(carportDimmer).and(isPowerSet(gardenDimmer)))))
+                    isPowerSetAndResponseNotOlderThen30Sec(drivewayDimmer)
+                        .and(
+                            isPowerSetAndResponseNotOlderThen30Sec(carportDimmer)
+                                .and(isPowerSetAndResponseNotOlderThen30Sec(gardenDimmer)))))
         .action(setNoAction())
         .build();
   }
@@ -153,12 +156,14 @@ public class DimmerChain {
     };
   }
 
-  private Predicate<Step> isPowerSet(final RbdDimmer rbdDimmer) {
+  private Predicate<Step> isPowerSetAndResponseNotOlderThen30Sec(final RbdDimmer rbdDimmer) {
     return step -> {
       final RdbDimmerResponse rdbDimmerResponse = rbdDimmer.getResponse();
       return (rdbDimmerResponse == null)
           ? false
-          : rdbDimmerResponse.getGoalPower() == rdbDimmerResponse.getPower();
+          : rdbDimmerResponse.getGoalPower() == rdbDimmerResponse.getPower()
+              && LocalDateTime.now()
+                  .isBefore(rdbDimmerResponse.getResponseUpdate().plusSeconds(30));
     };
   }
 
@@ -185,7 +190,8 @@ public class DimmerChain {
       goalPower = calculateBaseOnLightIntense(lightZoneParamDto.getStandByPower());
     }
 
-    if (currentPower == goalPower) {
+    if (currentPower == goalPower
+        && LocalDateTime.now().isBefore(dimmerResponse.getResponseUpdate().plusSeconds(30))) {
       rbdDimmer.setCommandSet(new RdbDimmerCommandSet(RdbDimmerCommandType.NO_ACTION));
     } else {
       log.info(

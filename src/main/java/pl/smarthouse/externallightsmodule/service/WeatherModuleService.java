@@ -61,7 +61,7 @@ public class WeatherModuleService {
             throwable -> {
               weatherModuleConfiguration.resetBaseUrl();
               log.error(
-                  "Error occurred on sendCommandToVentilationModule. Reason: {}",
+                  "Error occurred on getWeatherModuleMetaData. Reason: {}",
                   throwable.getMessage(),
                   throwable);
             });
