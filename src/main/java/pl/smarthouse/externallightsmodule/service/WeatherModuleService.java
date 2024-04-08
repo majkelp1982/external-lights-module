@@ -31,7 +31,7 @@ public class WeatherModuleService {
         .block();
   }
 
-  private Mono<String> retrieveVentilationServiceBaseUrl() {
+  private Mono<String> retrieveWeatherServiceBaseUrl() {
     return Mono.justOrEmpty(weatherModuleConfiguration.getBaseUrl())
         .switchIfEmpty(
             Mono.defer(() -> moduleManagerService.getServiceAddress(WEATHER_MODULE_TYPE)))
@@ -49,7 +49,7 @@ public class WeatherModuleService {
   }
 
   private Mono<WeatherModuleDto> getWeatherModuleMetaData() {
-    return retrieveVentilationServiceBaseUrl()
+    return retrieveWeatherServiceBaseUrl()
         .flatMap(signal -> Mono.just(weatherModuleConfiguration.getWebClient()))
         .flatMap(
             webClient ->
