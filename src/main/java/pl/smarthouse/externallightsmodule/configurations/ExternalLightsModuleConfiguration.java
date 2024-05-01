@@ -41,12 +41,11 @@ public class ExternalLightsModuleConfiguration {
 
     externalLightsModuleDao =
         ExternalLightsModuleDao.builder()
-            .moduleName(Esp32ModuleProperties.MODULE_TYPE)
+            .type(Esp32ModuleProperties.MODULE_TYPE)
             .entrance(entrance)
             .driveway(driveway)
             .carport(carport)
             .garden(garden)
-            .moduleName(Esp32ModuleProperties.MODULE_TYPE)
             .build();
     monitoringService.setModuleDaoObject(externalLightsModuleDao);
     setCompareProperties();

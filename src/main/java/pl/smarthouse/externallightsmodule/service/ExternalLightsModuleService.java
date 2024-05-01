@@ -50,7 +50,7 @@ public class ExternalLightsModuleService {
   }
 
   public String getModuleName() {
-    return externalLightsModuleConfiguration.getExternalLightsModuleDao().getModuleName();
+    return externalLightsModuleConfiguration.getExternalLightsModuleDao().getType();
   }
 
   public void setEntranceDimmerResponse(final RdbDimmerResponse rdbDimmerResponse) {
